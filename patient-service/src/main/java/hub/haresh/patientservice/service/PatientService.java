@@ -4,6 +4,7 @@ import hub.haresh.patientservice.dto.PatientRequestDTO;
 import hub.haresh.patientservice.dto.PatientResponseDTO;
 import hub.haresh.patientservice.exception.EmailAlreadyExistsException;
 import hub.haresh.patientservice.exception.PatientNotFoundException;
+import hub.haresh.patientservice.grpc.BillingServiceGrpcClient;
 import hub.haresh.patientservice.mapper.PatientMapper;
 import hub.haresh.patientservice.model.Patient;
 import hub.haresh.patientservice.repository.PatientRepository;
@@ -19,9 +20,11 @@ import java.util.UUID;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final BillingServiceGrpcClient billingServiceGrpcClient;
 
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient) {
         this.patientRepository = patientRepository;
+        this.billingServiceGrpcClient = billingServiceGrpcClient;
     }
 
     public List<PatientResponseDTO> getPatients() {
@@ -34,6 +37,9 @@ public class PatientService {
             throw new EmailAlreadyExistsException("Email " + patientRequestDTO.getEmail() + " already exists");
         }
         Patient patient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
+        billingServiceGrpcClient.createBillingAccount(patient.getId().toString(),
+                patient.getName(), patient.getEmail());
+
         return PatientMapper.toDTO(patient);
     }
 
