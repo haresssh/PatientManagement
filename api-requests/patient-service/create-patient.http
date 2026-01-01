@@ -1,0 +1,13 @@
+### Create a new patient
+POST {{host}}/patients
+Content-Type: application/json
+
+{
+  "name": "Manus AI",
+  "email": "manus.ai@meta.com",
+  "address": "Trikampara, Muli",
+  "dateOfBirth": "2001-04-03",
+  "registeredDate": "2025-12-31"
+}
+
+###
